@@ -11,6 +11,8 @@ st.write("Compare models and market-only versus market-plus-FinBERT experiments.
          " These are research results, not live signals or trading advice.")
 path = Path("reports/fold_metrics.csv")
 if not path.exists():
+    path = Path("reports/real-market-pilot/market_only_metrics.csv")
+if not path.exists():
     st.info("No evaluation results yet. Run high-beta evaluate --prices data/raw/prices.csv")
     st.stop()
 results = pd.read_csv(path)
