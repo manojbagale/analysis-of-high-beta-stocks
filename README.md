@@ -137,6 +137,26 @@ streamlit run app/streamlit_app.py
 
 See [architecture and data contracts](docs/architecture.md), [experiment design](docs/experiments.md), and [research limitations](docs/limitations.md) for the methodology and constraints.
 
+## Running the first historical study
+
+The market benchmark now has a dedicated downloader and coverage report. It requests each configured ticker separately so missing IPO histories and vendor errors are recorded rather than hidden:
+
+```bash
+python -m pip install -e ".[dev,market,regimes]"
+python scripts/run_market_study.py
+```
+
+The outputs are local to `reports/real-market-pilot/`: `prices.csv`, `coverage.csv`, `market_only_metrics.csv`, and `metadata.json`. All are excluded from Git. The downloadable price source is a prototype provider and the price history needs an additional point-in-time audit before any publishable performance claims.
+
+Alternatively, the **Historical Market Benchmark** GitHub Actions workflow can be started manually; it uploads an ephemeral artifact with metrics and error diagnostics. The **Recent Financial News Pilot** workflow separately discovers a limited recent GDELT headline sample and applies FinBERT:
+
+```bash
+python -m pip install -e ".[dev,market,nlp]"
+python scripts/run_news_pilot.py --tickers IREN NBIS --days 45
+```
+
+That second script is a **news-coverage and model-inference pilot, not a valid market-versus-text benchmark**. GDELT ArticleList has limited recent history, and it reports first-seen times rather than independently verified publication times. We must obtain a longer, timestamped historical news archive for a comparison on identical walk-forward folds. See [data provenance and source limitations](docs/data-sources.md).
+
 ## Repository layout
 
 ```text
