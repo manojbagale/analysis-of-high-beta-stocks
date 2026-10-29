@@ -54,6 +54,7 @@ def test_end_to_end_classical_models_on_synthetic_fixture():
         min_train_dates=100, test_dates=15, step_dates=15,
         gap_dates=1, max_splits=2,
     )
+    cfg["data"]["min_history_days"] = 75
     cfg["models"] = [
         "dummy", "logistic_regression", "decision_tree",
         "random_forest", "svm_rbf",
