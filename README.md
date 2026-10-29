@@ -148,7 +148,7 @@ python scripts/run_market_study.py
 
 The outputs are local to `reports/real-market-pilot/`: `prices.csv`, `coverage.csv`, `market_only_metrics.csv`, and `metadata.json`. All are excluded from Git. The downloadable price source is a prototype provider and the price history needs an additional point-in-time audit before any publishable performance claims.
 
-Alternatively, the **Historical Market Benchmark** GitHub Actions workflow can be started manually; it uploads an ephemeral artifact with metrics and error diagnostics. The **Recent Financial News Pilot** workflow separately discovers a limited recent GDELT headline sample and applies FinBERT:
+To run the recent financial-news pilot locally, use:
 
 ```bash
 python -m pip install -e ".[dev,market,nlp]"
