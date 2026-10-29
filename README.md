@@ -10,13 +10,13 @@ This is an empirical machine-learning project, **not** an investment recommendat
 
 The initial, configurable study universe is:
 
-- **AI cloud / GPU infrastructure:** Nebius (\`NBIS\`), CoreWeave (\`CRWV\`).
-- **AI-data-center and power-capacity development:** Applied Digital (\`APLD\`), TeraWulf (\`WULF\`), Cipher Mining (\`CIFR\`), Core Scientific (\`CORZ\`).
-- **Compute / mining-to-AI exposure:** IREN (\`IREN\`), Hut 8 (\`HUT\`).
+- **AI cloud / GPU infrastructure:** Nebius (`NBIS`), CoreWeave (`CRWV`).
+- **AI-data-center and power-capacity development:** Applied Digital (`APLD`), TeraWulf (`WULF`), Cipher Mining (`CIFR`), Core Scientific (`CORZ`).
+- **Compute / mining-to-AI exposure:** IREN (`IREN`), Hut 8 (`HUT`).
 
-Further candidates for comparative or sector analysis include Vertiv (\`VRT\`), Super Micro Computer (\`SMCI\`), NVIDIA (\`NVDA\`), Dell (\`DELL\`), Vistra (\`VST\`), and Eaton (\`ETN\`). They represent different parts of the infrastructure supply chain, **not** a single homogeneous industry. Final inclusion will depend on historic trading coverage, corporate-action continuity, and measured rolling beta. Recent listings do not have the same history as established stocks.
+Further candidates for comparative or sector analysis include Vertiv (`VRT`), Super Micro Computer (`SMCI`), NVIDIA (`NVDA`), Dell (`DELL`), Vistra (`VST`), and Eaton (`ETN`). They represent different parts of the infrastructure supply chain, **not** a single homogeneous industry. Final inclusion will depend on historic trading coverage, corporate-action continuity, and measured rolling beta. Recent listings do not have the same history as established stocks.
 
-Market context begins with \`SPY\` (broad U.S. market and beta denominator), \`QQQ\` (technology), \`SMH\` (semiconductors), \`^VIX\` (volatility environment), and \`BTC-USD\` (crypto exposure). These are inputs, not necessarily prediction targets.
+Market context begins with `SPY` (broad U.S. market and beta denominator), `QQQ` (technology), `SMH` (semiconductors), `^VIX` (volatility environment), and `BTC-USD` (crypto exposure). These are inputs, not necessarily prediction targets.
 
 ## Research questions
 
@@ -28,7 +28,7 @@ Market context begins with \`SPY\` (broad U.S. market and beta denominator), \`Q
 
 ## System pipeline
 
-\`\`\`mermaid
+```mermaid
 flowchart TD
     Prices[Daily OHLCV equities] --> Validate[Validate dates, tickers, and coverage]
     Context[SPY / QQQ / SMH / VIX / BTC] --> Validate
@@ -46,15 +46,15 @@ flowchart TD
     Regimes --> Reliability[Regime analysis and failure inspection]
     Ablation --> Dashboard[Read-only Streamlit experiment viewer]
     Reliability --> Dashboard
-\`\`\`
+```
 
-The architecture deliberately separates **data acquisition**, **features**, **labels**, **training**, **evaluation**, and **presentation**. Jupyter is for exploration; reusable calculations belong in \`src/high_beta_analysis/\`.
+The architecture deliberately separates **data acquisition**, **features**, **labels**, **training**, **evaluation**, and **presentation**. Jupyter is for exploration; reusable calculations belong in `src/high_beta_analysis/`.
 
 ### 1. Stock-day observations
 
 Each row corresponds to one ticker on one observed regular-session date. Market features include daily and absolute returns, rolling momentum (5/20 sessions), realized volatility (5/20), lagged volume ratio, daily range, overnight gap, rolling 60-session beta to SPY, relative market returns and cross-asset context.
 
-A feature for date \`t\` must be known by the configured prediction cutoff on date \`t\`. The target is the **absolute closing-price return from session \`t\` to the next session**; it is never an input feature.
+A feature for date `t` must be known by the configured prediction cutoff on date `t`. The target is the **absolute closing-price return from session `t` to the next session**; it is never an input feature.
 
 ### 2. What counts as an extreme move?
 
@@ -66,11 +66,11 @@ Estimating thresholds from the full dataset would leak future return distributio
 
 ### 3. Financial-language features (FinBERT)
 
-\`ProsusAI/finbert\` returns three sentiment scores per article: positive, negative and neutral. We retain **all three**, not only the winning label, and aggregate articles by ticker and the first eligible session cutoff **at or after publication**. An article published at 4:30 p.m. ET on Thursday cannot affect Thursday's 4 p.m. estimate; its first eligible session is Friday (or the next open session).
+`ProsusAI/finbert` returns three sentiment scores per article: positive, negative and neutral. We retain **all three**, not only the winning label, and aggregate articles by ticker and the first eligible session cutoff **at or after publication**. An article published at 4:30 p.m. ET on Thursday cannot affect Thursday's 4 p.m. estimate; its first eligible session is Friday (or the next open session).
 
 The current NLP features include article count, mean class probabilities, mean positive-minus-negative sentiment, sentiment disagreement (standard deviation), maximum absolute sentiment, and a **missing-news indicator**. Missing coverage must not be interpreted as proof that no relevant news occurred.
 
-The text pipeline accepts a licensed, user-supplied news CSV with \`ticker\`, \`published_at\` (timezone-aware), and \`headline\`. It does **not** secretly scrape or redistribute copyrighted news. Model weights download from Hugging Face when FinBERT is first invoked. Check the model card and publisher-data licenses before running.
+The text pipeline accepts a licensed, user-supplied news CSV with `ticker`, `published_at` (timezone-aware), and `headline`. It does **not** secretly scrape or redistribute copyrighted news. Model weights download from Hugging Face when FinBERT is first invoked. Check the model card and publisher-data licenses before running.
 
 ### 4. Modeling and course concepts
 
@@ -97,49 +97,49 @@ Planned deeper research includes calibration plots, SHAP explanations, richer em
 
 Python **3.11+** is recommended. From the repository root:
 
-\`\`\`bash
+```bash
 python -m venv .venv
 source .venv/bin/activate                  # Windows PowerShell: .venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev,market,regimes]"
 python -m pytest -q
-\`\`\`
+```
 
 Try the full classical-model pipeline **without any external data**:
 
-\`\`\`bash
+```bash
 high-beta demo --demo-days 340
 high-beta evaluate --prices data/raw/demo_prices.csv
-\`\`\`
+```
 
 Those files are **synthetic fixtures** created to validate wiring, not evidence about market behavior. They are deliberately excluded from Git.
 
-Download publicly accessible *prototype* price history (Yahoo Finance via \`yfinance\`) and evaluate it:
+Download publicly accessible *prototype* price history (Yahoo Finance via `yfinance`) and evaluate it:
 
-\`\`\`bash
+```bash
 high-beta download --output data/raw/prices.csv
 high-beta evaluate --prices data/raw/prices.csv
-\`\`\`
+```
 
 For the financial-news comparison, install the optional model dependencies and supply **timestamped** news rows:
 
-\`\`\`bash
+```bash
 python -m pip install -e ".[nlp]"
 high-beta finbert --news data/raw/news.csv --output data/processed/scored_news.csv
 high-beta evaluate --prices data/raw/prices.csv --news data/processed/scored_news.csv
-\`\`\`
+```
 
 The first FinBERT call downloads the model; CPU inference is supported but can be slow. The repo does not include any paid-news access or API keys. For local inspection of saved results:
 
-\`\`\`bash
+```bash
 python -m pip install -e ".[app]"
 streamlit run app/streamlit_app.py
-\`\`\`
+```
 
 See [architecture and data contracts](docs/architecture.md), [experiment design](docs/experiments.md), and [research limitations](docs/limitations.md) for the methodology and constraints.
 
 ## Repository layout
 
-\`\`\`text
+```text
 configs/                     Research universe, windows, target definition
 src/high_beta_analysis/
   data/                      OHLCV acquisition, validation and synthetic fixtures
@@ -152,7 +152,7 @@ tests/                       Price alignment, leakage, news timestamps, splits
 docs/                        Design, methodology, limitations and references
 data/                        Local source and processed data (not committed)
 reports/                     Local evaluation artifacts (not committed)
-\`\`\`
+```
 
 ## Current scope and limitations
 
