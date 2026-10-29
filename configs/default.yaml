@@ -1,0 +1,55 @@
+project:
+  name: analysis-of-high-beta-stocks
+  seed: 42
+  prediction_cutoff: "16:00 America/New_York after the regular-session close"
+
+data:
+  start: "2023-01-01"
+  end: null  # yfinance end is exclusive; null means current date
+  equities:
+    # Candidate AI-infrastructure universe; high beta is to be measured.
+    - IREN
+    - NBIS
+    - CRWV
+    - WULF
+    - APLD
+    - CIFR
+    - CORZ
+    - HUT
+  benchmarks:
+    - SPY
+    - QQQ
+    - SMH
+    - "^VIX"
+    - BTC-USD
+  benchmark_for_beta: SPY
+  min_history_days: 120
+  trading_calendar: "observed equity sessions (not an exchange calendar)"
+
+features:
+  volatility_windows: [5, 20]
+  momentum_windows: [5, 20]
+  beta_window: 60
+  volume_window: 20
+  news_model: ProsusAI/finbert
+
+target:
+  return_horizon_sessions: 1
+  extreme_abs_return_percentile: 90
+  alternate_percentiles: [85, 95]
+
+evaluation:
+  min_train_dates: 180
+  test_dates: 30
+  step_dates: 30
+  gap_dates: 1
+  max_splits: 6
+  classification_threshold: 0.5
+
+models:
+  - dummy
+  - logistic_regression
+  - decision_tree
+  - random_forest
+  - svm_rbf
+  - mlp
