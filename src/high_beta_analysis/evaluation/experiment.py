@@ -51,6 +51,16 @@ def run_experiments(panel: pd.DataFrame, settings: dict,
     for fold, (train_ix, test_ix) in enumerate(splitter.split(data), start=1):
         fold_count += 1
         train, test = data.iloc[train_ix].copy(), data.iloc[test_ix].copy()
+        # Recent IPOs may first appear in a test block. A stock requires a
+        # training-only return history before it can be evaluated in that fold.
+        minimum_history = int(settings["data"].get("min_history_days", 120))
+        counts = train.groupby("ticker")["next_abs_return"].count()
+        trained_tickers = set(counts[counts >= minimum_history].index)
+        train = train[train.ticker.isin(trained_tickers)]
+        test = test[test.ticker.isin(trained_tickers)]
+        if train.empty or test.empty:
+            warnings.warn(f"Fold {fold}: no test ticker has sufficient prior training history")
+            continue
         thresholds = fit_extreme_thresholds(
             train, settings["target"]["extreme_abs_return_percentile"]
         )
